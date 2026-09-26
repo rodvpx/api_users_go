@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+var users = []User{}
+
 func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet {
@@ -13,13 +15,33 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 
-	u := User{
-		ID:    1,
-		Name:  "Marcio",
-		Email: "marcio@mail.com",
+	err := json.NewEncoder(w).Encode(users)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
+		return
 	}
 
-	err := json.NewEncoder(w).Encode(u)
+	var u User
+	err := json.NewDecoder(r.Body).Decode(&u)
+	if err != nil {
+		http.Error(w, "JSON inválido", http.StatusBadRequest)
+		return
+	}
+
+	users = append(users, u)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+
+	err = json.NewEncoder(w).Encode(u)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

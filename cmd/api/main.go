@@ -9,7 +9,8 @@ import (
 func main() {
 	fmt.Println("API iniciando...")
 
-	http.HandleFunc("/", user.GetUserHandler)
+	http.HandleFunc("GET /users", user.GetUserHandler)
+	http.HandleFunc("POST /users", user.CreateUserHandler)
 
 	fmt.Println("Servidor rodando em http://localhost:8080")
 
