@@ -9,7 +9,7 @@ func main() {
 	fmt.Println("API iniciando...")
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(w, "Olá, API!")
+		fmt.Fprintln(w, "Olá, API!")
 	})
 
 	fmt.Println("Servidor rodando em http://localhost:8080")
