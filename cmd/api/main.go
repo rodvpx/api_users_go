@@ -11,6 +11,7 @@ func main() {
 
 	http.HandleFunc("GET /users", user.GetUserHandler)
 	http.HandleFunc("POST /users", user.CreateUserHandler)
+	http.HandleFunc("GET /users/{id}", user.GetUserByIDHandler)
 
 	fmt.Println("Servidor rodando em http://localhost:8080")
 
