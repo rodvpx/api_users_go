@@ -8,9 +8,16 @@ import (
 func main() {
 	fmt.Println("API iniciando...")
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "Olá, API!")
-	})
+	http.HandleFunc("/",
+		func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodGet {
+				http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
+				return
+
+			}
+			w.Header().Set("Content-Type", "application/json")
+			fmt.Fprintln(w, `{"mensagem": "Olá, API!"}`)
+		})
 
 	fmt.Println("Servidor rodando em http://localhost:8080")
 
