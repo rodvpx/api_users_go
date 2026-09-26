@@ -70,3 +70,57 @@ func GetUserByIDHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Usuário não encontrado", http.StatusNotFound)
 
 }
+
+func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
+
+	idStr := r.PathValue("id")
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	var newUser User
+	err = json.NewDecoder(r.Body).Decode(&newUser)
+	if err != nil {
+		http.Error(w, "JSON inválido", http.StatusBadRequest)
+		return
+	}
+
+	for i, u := range users {
+		if u.ID == id {
+			users[i].Name = newUser.Name
+			users[i].Email = newUser.Email
+
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(users[i])
+			return
+		}
+	}
+
+	http.Error(w, "Usuário não encontrado", http.StatusNotFound)
+
+}
+
+func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	for i, u := range users {
+		if u.ID == id {
+			users = append(users[:i], users[i+1:]...)
+
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+	}
+
+	http.Error(w, "Usuário não encontrado", http.StatusNotFound)
+
+}
