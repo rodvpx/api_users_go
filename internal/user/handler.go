@@ -95,6 +95,8 @@ func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// o validadete atualmente breca o update no caso de atualização parcial (Patch),
+	// pois ele valida os 2 campos. Vai ser corrijo futuramente na etapa de Dto
 	err = newUser.Validate()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
