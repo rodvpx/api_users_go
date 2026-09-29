@@ -13,6 +13,12 @@ func NewInMemoryRepository() Repository {
 }
 
 func (m *inMemoryRepository) Create(u User) error {
+	for _, existingUser := range m.users {
+		if existingUser.Email == u.Email {
+			return errors.New("Este email já está em uso")
+		}
+	}
+
 	m.users = append(m.users, u)
 	return nil
 }
