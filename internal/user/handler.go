@@ -33,7 +33,7 @@ func (h *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = h.repo.Create(u)
+	u, err = h.repo.Create(u)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusConflict)
 		return
