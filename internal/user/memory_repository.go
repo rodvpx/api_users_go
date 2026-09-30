@@ -12,15 +12,17 @@ func NewInMemoryRepository() Repository {
 	}
 }
 
-func (m *inMemoryRepository) Create(u User) error {
+func (m *inMemoryRepository) Create(u User) (User, error) {
 	for _, existingUser := range m.users {
 		if existingUser.Email == u.Email {
-			return errors.New("Este email já está em uso")
+			return User{}, errors.New("Este email já está em uso")
 		}
 	}
 
+	u.ID = len(m.users) + 1
+
 	m.users = append(m.users, u)
-	return nil
+	return u, nil
 }
 
 func (m *inMemoryRepository) GetAll() ([]User, error) {
