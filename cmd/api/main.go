@@ -1,6 +1,7 @@
 package main
 
 import (
+	"api_users_go/internal/database"
 	"api_users_go/internal/user"
 	"fmt"
 	"net/http"
@@ -8,6 +9,15 @@ import (
 
 func main() {
 	fmt.Println("API iniciando...")
+
+	dsn := "postgres://postgres:postgres@localhost:5432/api_users_go_db?sslmode=disable"
+
+	db, err := database.NewPostgresDB(dsn)
+	if err != nil {
+		fmt.Errorf("Erro fatal ao conectar ao banco de dados: %v", err)
+	}
+
+	defer db.Close()
 
 	repo := user.NewInMemoryRepository()
 
@@ -21,7 +31,7 @@ func main() {
 
 	fmt.Println("Servidor rodando em http://localhost:8080")
 
-	err := http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
 		fmt.Println("erro ao iniciar servidor: ", err)
 	}
