@@ -14,12 +14,13 @@ func main() {
 
 	db, err := database.NewPostgresDB(dsn)
 	if err != nil {
-		fmt.Errorf("Erro fatal ao conectar ao banco de dados: %v", err)
+		fmt.Printf("Erro fatal ao conectar ao banco de dados: %v\n", err)
+		return
 	}
 
 	defer db.Close()
 
-	repo := user.NewInMemoryRepository()
+	repo := user.NewPostgresRepository(db)
 
 	handler := user.NewUserHandler(repo)
 
