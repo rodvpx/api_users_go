@@ -38,12 +38,15 @@ func (m *inMemoryRepository) GetByID(id int) (User, error) {
 	return User{}, errors.New("Usuário não encontrado")
 }
 
-func (m *inMemoryRepository) Update(id int, newData User) (User, error) {
-
+func (m *inMemoryRepository) Update(id int, req UpdateUserRequest) (User, error) {
 	for i, u := range m.users {
 		if u.ID == id {
-			m.users[i].Name = newData.Name
-			m.users[i].Email = newData.Email
+			if req.Name != nil {
+				m.users[i].Name = *req.Name
+			}
+			if req.Email != nil {
+				m.users[i].Email = *req.Email
+			}
 
 			return m.users[i], nil
 		}

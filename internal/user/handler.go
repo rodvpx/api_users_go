@@ -81,36 +81,27 @@ func (h *UserHandler) GetUserByIDHandler(w http.ResponseWriter, r *http.Request)
 
 func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
-
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	var newUser User
-	err = json.NewDecoder(r.Body).Decode(&newUser)
+	var req UpdateUserRequest
+	err = json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, "JSON inválido", http.StatusBadRequest)
 		return
 	}
 
-	// o validadete atualmente breca o update no caso de atualização parcial (Patch),
-	// pois ele valida os 2 campos. Vai ser corrijo futuramente na etapa de Dto
-	err = newUser.Validate()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	uAtualizado, err := h.repo.Update(id, newUser)
+	uAtualizado, err := h.repo.Update(id, req)
 	if err != nil {
 		http.Error(w, "Usuário não encontrado", http.StatusNotFound)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusAccepted)
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(uAtualizado)
 }
 

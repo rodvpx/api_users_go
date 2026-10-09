@@ -74,11 +74,23 @@ func (p *postgresRepository) GetByID(id int) (User, error) {
 	return u, nil
 }
 
-func (p *postgresRepository) Update(id int, u User) (User, error) {
+func (p *postgresRepository) Update(id int, req UpdateUserRequest) (User, error) {
+
+	currentUser, err := p.GetByID(id)
+	if err != nil {
+		return User{}, err
+	}
+
+	if req.Name != nil {
+		currentUser.Name = *req.Name
+	}
+	if req.Email != nil {
+		currentUser.Email = *req.Email
+	}
 
 	query := `UPDATE users SET name = $1, email = $2 WHERE id = $3`
-
-	res, err := p.db.Exec(query, u.Name, u.Email, id)
+	
+	res, err := p.db.Exec(query, currentUser.Name, currentUser.Email, id)
 	if err != nil {
 		return User{}, fmt.Errorf("erro ao atualizar usuário: %w", err)
 	}
@@ -91,8 +103,8 @@ func (p *postgresRepository) Update(id int, u User) (User, error) {
 		return User{}, errors.New("Usuário não encontrado")
 	}
 
-	u.ID = id
-	return u, nil
+	currentUser.ID = id
+	return currentUser, nil
 }
 
 func (p *postgresRepository) Delete(id int) error {
