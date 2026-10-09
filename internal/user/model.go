@@ -8,6 +8,11 @@ type User struct {
 	Email string `json:"email"`
 }
 
+type UpdateUserRequest struct {
+	Name  *string `json:"name, omitempty"`
+	Email *string `json:"email, omitempty"`
+}
+
 func (u *User) Validate() error {
 	if u.Name == "" {
 		return errors.New("O nome é obrigatório")
