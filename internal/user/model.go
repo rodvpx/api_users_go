@@ -9,8 +9,8 @@ type User struct {
 }
 
 type UpdateUserRequest struct {
-	Name  *string `json:"name, omitempty"`
-	Email *string `json:"email, omitempty"`
+	Name  *string `json:"name,omitempty"`
+	Email *string `json:"email,omitempty"`
 }
 
 func (u *User) Validate() error {
