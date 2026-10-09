@@ -4,6 +4,7 @@ import (
 	"api_users_go/internal/database"
 	"api_users_go/internal/user"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -20,8 +21,11 @@ func main() {
 
 	defer db.Close()
 
-	repo := user.NewPostgresRepository(db)
+	if err := database.RunMigrations(db); err != nil {
+		log.Fatalf("Erro fatal ao executar migrations: %v", err)
+	}
 
+	repo := user.NewPostgresRepository(db)
 	handler := user.NewUserHandler(repo)
 
 	http.HandleFunc("GET /users", handler.GetUserHandler)
