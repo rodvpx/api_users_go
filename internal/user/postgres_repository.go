@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -14,22 +15,22 @@ func NewPostgresRepository(db *sql.DB) Repository {
 	return &postgresRepository{db: db}
 }
 
-func (p *postgresRepository) Create(u User) (User, error) {
+func (p *postgresRepository) Create(ctx context.Context, u User) (User, error) {
 
 	query := `INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id`
 
-	err := p.db.QueryRow(query, u.Name, u.Email).Scan(&u.ID)
+	err := p.db.QueryRowContext(ctx, query, u.Name, u.Email).Scan(&u.ID)
 	if err != nil {
 		return User{}, fmt.Errorf("Erro ao inserir usuário: %w", err)
 	}
 	return u, nil
 }
 
-func (p *postgresRepository) GetAll() ([]User, error) {
+func (p *postgresRepository) GetAll(ctx context.Context) ([]User, error) {
 
 	query := `SELECT id, name, email FROM users`
 
-	rows, err := p.db.Query(query)
+	rows, err := p.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("Erro ao buscar usuário: %w", err)
 	}
@@ -58,12 +59,12 @@ func (p *postgresRepository) GetAll() ([]User, error) {
 	return users, nil
 }
 
-func (p *postgresRepository) GetByID(id int) (User, error) {
+func (p *postgresRepository) GetByID(ctx context.Context, id int) (User, error) {
 
 	query := `SELECT id, name, email FROM users WHERE id = $1`
 	var u User
 
-	err := p.db.QueryRow(query, id).Scan(&u.ID, &u.Name, &u.Email)
+	err := p.db.QueryRowContext(ctx, query, id).Scan(&u.ID, &u.Name, &u.Email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return User{}, errors.New("Usuário não econtrado")
@@ -74,9 +75,9 @@ func (p *postgresRepository) GetByID(id int) (User, error) {
 	return u, nil
 }
 
-func (p *postgresRepository) Update(id int, req UpdateUserRequest) (User, error) {
+func (p *postgresRepository) Update(ctx context.Context, id int, req UpdateUserRequest) (User, error) {
 
-	currentUser, err := p.GetByID(id)
+	currentUser, err := p.GetByID(ctx, id)
 	if err != nil {
 		return User{}, err
 	}
@@ -89,8 +90,8 @@ func (p *postgresRepository) Update(id int, req UpdateUserRequest) (User, error)
 	}
 
 	query := `UPDATE users SET name = $1, email = $2 WHERE id = $3`
-	
-	res, err := p.db.Exec(query, currentUser.Name, currentUser.Email, id)
+
+	res, err := p.db.ExecContext(ctx, query, currentUser.Name, currentUser.Email, id)
 	if err != nil {
 		return User{}, fmt.Errorf("erro ao atualizar usuário: %w", err)
 	}
@@ -107,11 +108,11 @@ func (p *postgresRepository) Update(id int, req UpdateUserRequest) (User, error)
 	return currentUser, nil
 }
 
-func (p *postgresRepository) Delete(id int) error {
+func (p *postgresRepository) Delete(ctx context.Context, id int) error {
 
 	query := `DELETE FROM users WHERE id = $1`
 
-	res, err := p.db.Exec(query, id)
+	res, err := p.db.ExecContext(ctx, query, id)
 	if err != nil {
 		return fmt.Errorf("Erro ao deletar usuário: %w", err)
 	}
