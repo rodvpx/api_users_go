@@ -26,7 +26,8 @@ func main() {
 	}
 
 	repo := user.NewPostgresRepository(db)
-	handler := user.NewUserHandler(repo)
+	userService := user.NewUserService(repo)
+	handler := user.NewUserHandler(userService)
 
 	http.HandleFunc("GET /users", handler.GetUserHandler)
 	http.HandleFunc("POST /users", handler.CreateUserHandler)
