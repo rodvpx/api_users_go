@@ -2,6 +2,7 @@ package user
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -139,7 +140,7 @@ func TestUpdateUserHandler(t *testing.T) {
 	handler := NewUserHandler(repo)
 
 	// Inserimos um usuário inicial na memória para atualizar
-	u, err := repo.Create(User{Name: "Carlos", Email: "carlos@email.com"})
+	u, err := repo.Create(context.Background(), User{Name: "Carlos", Email: "carlos@email.com"})
 	if err != nil {
 		t.Fatalf("falha ao criar usuário base: %v", err)
 	}
@@ -175,7 +176,7 @@ func TestDeleteUserHandler(t *testing.T) {
 	handler := NewUserHandler(repo)
 
 	// Criamos um usuário para ser removido
-	u, err := repo.Create(User{Name: "To Delete", Email: "delete@email.com"})
+	u, err := repo.Create(context.Background(), User{Name: "To Delete", Email: "delete@email.com"})
 	if err != nil {
 		t.Fatalf("falha ao criar usuário base: %v", err)
 	}
@@ -194,7 +195,7 @@ func TestDeleteUserHandler(t *testing.T) {
 	}
 
 	// Garante que o usuário realmente sumiu do repositório
-	_, err = repo.GetByID(u.ID)
+	_, err = repo.GetByID(context.Background(), u.ID)
 	if err == nil {
 		t.Error("esperava erro ao buscar usuário deletado, mas ele ainda existe")
 	}

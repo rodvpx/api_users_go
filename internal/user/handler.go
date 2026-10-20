@@ -15,6 +15,7 @@ func NewUserHandler(r Repository) *UserHandler {
 }
 
 func (h *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 		return
@@ -33,24 +34,25 @@ func (h *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	u, err = h.repo.Create(u)
+	createdUser, err := h.repo.Create(r.Context(), u)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusConflict)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(u)
+	json.NewEncoder(w).Encode(createdUser)
 }
 
 func (h *UserHandler) GetUserHandler(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method != http.MethodGet {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 		return
 	}
 
-	listaUsuarios, err := h.repo.GetAll()
+	listaUsuarios, err := h.repo.GetAll(r.Context())
 	if err != nil {
 		http.Error(w, "Erro ao buscar usuários", http.StatusInternalServerError)
 		return
@@ -61,6 +63,7 @@ func (h *UserHandler) GetUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) GetUserByIDHandler(w http.ResponseWriter, r *http.Request) {
+
 	idStr := r.PathValue("id")
 
 	id, err := strconv.Atoi(idStr)
@@ -69,7 +72,7 @@ func (h *UserHandler) GetUserByIDHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	u, err := h.repo.GetByID(id)
+	u, err := h.repo.GetByID(r.Context(), id)
 	if err != nil {
 		http.Error(w, "Usuário não encontrado", http.StatusNotFound)
 		return
@@ -80,6 +83,7 @@ func (h *UserHandler) GetUserByIDHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
+
 	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -94,7 +98,7 @@ func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	uAtualizado, err := h.repo.Update(id, req)
+	uAtualizado, err := h.repo.Update(r.Context(), id, req)
 	if err != nil {
 		http.Error(w, "Usuário não encontrado", http.StatusNotFound)
 		return
@@ -106,6 +110,7 @@ func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *UserHandler) DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
+
 	idStr := r.PathValue("id")
 
 	id, err := strconv.Atoi(idStr)
@@ -114,7 +119,7 @@ func (h *UserHandler) DeleteUserHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = h.repo.Delete(id)
+	err = h.repo.Delete(r.Context(), id)
 	if err != nil {
 		http.Error(w, "Usuário não encontrado", http.StatusNotFound)
 		return

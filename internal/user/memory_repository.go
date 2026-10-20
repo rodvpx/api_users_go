@@ -1,6 +1,9 @@
 package user
 
-import "errors"
+import (
+	"context"
+	"errors"
+)
 
 type inMemoryRepository struct {
 	users []User
@@ -12,7 +15,7 @@ func NewInMemoryRepository() Repository {
 	}
 }
 
-func (m *inMemoryRepository) Create(u User) (User, error) {
+func (m *inMemoryRepository) Create(ctx context.Context, u User) (User, error) {
 	for _, existingUser := range m.users {
 		if existingUser.Email == u.Email {
 			return User{}, errors.New("Este email já está em uso")
@@ -25,11 +28,11 @@ func (m *inMemoryRepository) Create(u User) (User, error) {
 	return u, nil
 }
 
-func (m *inMemoryRepository) GetAll() ([]User, error) {
+func (m *inMemoryRepository) GetAll(ctx context.Context) ([]User, error) {
 	return m.users, nil
 }
 
-func (m *inMemoryRepository) GetByID(id int) (User, error) {
+func (m *inMemoryRepository) GetByID(ctx context.Context, id int) (User, error) {
 	for _, u := range m.users {
 		if u.ID == id {
 			return u, nil
@@ -38,7 +41,7 @@ func (m *inMemoryRepository) GetByID(id int) (User, error) {
 	return User{}, errors.New("Usuário não encontrado")
 }
 
-func (m *inMemoryRepository) Update(id int, req UpdateUserRequest) (User, error) {
+func (m *inMemoryRepository) Update(ctx context.Context, id int, req UpdateUserRequest) (User, error) {
 	for i, u := range m.users {
 		if u.ID == id {
 			if req.Name != nil {
@@ -55,7 +58,7 @@ func (m *inMemoryRepository) Update(id int, req UpdateUserRequest) (User, error)
 	return User{}, errors.New("Usuário não encontrado")
 }
 
-func (m *inMemoryRepository) Delete(id int) error {
+func (m *inMemoryRepository) Delete(ctx context.Context, id int) error {
 
 	for i, u := range m.users {
 		if u.ID == id {
