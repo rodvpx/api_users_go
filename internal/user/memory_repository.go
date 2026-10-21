@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"errors"
 )
 
 type inMemoryRepository struct {
@@ -18,7 +17,7 @@ func NewInMemoryRepository() Repository {
 func (m *inMemoryRepository) Create(ctx context.Context, u User) (User, error) {
 	for _, existingUser := range m.users {
 		if existingUser.Email == u.Email {
-			return User{}, errors.New("Este email já está em uso")
+			return User{}, ErrEmailAlreadyExists
 		}
 	}
 
@@ -38,7 +37,7 @@ func (m *inMemoryRepository) GetByID(ctx context.Context, id int) (User, error) 
 			return u, nil
 		}
 	}
-	return User{}, errors.New("Usuário não encontrado")
+	return User{}, ErrUserNotFound
 }
 
 func (m *inMemoryRepository) Update(ctx context.Context, id int, req UpdateUserRequest) (User, error) {
@@ -55,7 +54,7 @@ func (m *inMemoryRepository) Update(ctx context.Context, id int, req UpdateUserR
 		}
 	}
 
-	return User{}, errors.New("Usuário não encontrado")
+	return User{}, ErrUserNotFound
 }
 
 func (m *inMemoryRepository) Delete(ctx context.Context, id int) error {
@@ -68,5 +67,5 @@ func (m *inMemoryRepository) Delete(ctx context.Context, id int) error {
 		}
 	}
 
-	return errors.New("Usuário nao encontrado")
+	return ErrUserNotFound
 }
