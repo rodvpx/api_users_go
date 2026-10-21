@@ -28,7 +28,7 @@ func (s *userService) Create(ctx context.Context, input CreateUserInput) (UserOu
 	}
 
 	if err := u.Validate(); err != nil {
-		return UserOutput{}, fmt.Errorf("dados inválidos: %w", err)
+		return UserOutput{}, fmt.Errorf("%w: %v", ErrInvalidInput, err)
 	}
 
 	createdUser, err := s.repo.Create(ctx, u)

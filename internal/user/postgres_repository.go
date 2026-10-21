@@ -67,7 +67,7 @@ func (p *postgresRepository) GetByID(ctx context.Context, id int) (User, error) 
 	err := p.db.QueryRowContext(ctx, query, id).Scan(&u.ID, &u.Name, &u.Email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return User{}, errors.New("Usuário não econtrado")
+			return User{}, ErrUserNotFound
 		}
 		return User{}, fmt.Errorf("Erro ao buscar usuário por ID: %w", err)
 	}
@@ -101,7 +101,7 @@ func (p *postgresRepository) Update(ctx context.Context, id int, req UpdateUserR
 		return User{}, fmt.Errorf("Erro ao verificar linhas afetadas: %w", err)
 	}
 	if rows == 0 {
-		return User{}, errors.New("Usuário não encontrado")
+		return User{}, ErrUserNotFound
 	}
 
 	currentUser.ID = id
@@ -123,7 +123,7 @@ func (p *postgresRepository) Delete(ctx context.Context, id int) error {
 	}
 
 	if rows == 0 {
-		return errors.New("Usuário não encontrado")
+		return ErrUserNotFound
 	}
 
 	return nil

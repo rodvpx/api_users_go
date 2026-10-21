@@ -2,6 +2,7 @@ package main
 
 import (
 	"api_users_go/internal/database"
+	"api_users_go/internal/middleware"
 	"api_users_go/internal/user"
 	"fmt"
 	"log"
@@ -29,15 +30,22 @@ func main() {
 	userService := user.NewUserService(repo)
 	handler := user.NewUserHandler(userService)
 
-	http.HandleFunc("GET /users", handler.GetUserHandler)
-	http.HandleFunc("POST /users", handler.CreateUserHandler)
-	http.HandleFunc("GET /users/{id}", handler.GetUserByIDHandler)
-	http.HandleFunc("PATCH /users/{id}", handler.UpdateUserHandler)
-	http.HandleFunc("DELETE /users/{id}", handler.DeleteUserHandler)
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("GET /users", handler.GetUserHandler)
+	mux.HandleFunc("POST /users", handler.CreateUserHandler)
+	mux.HandleFunc("GET /users/{id}", handler.GetUserByIDHandler)
+	mux.HandleFunc("PATCH /users/{id}", handler.UpdateUserHandler)
+	mux.HandleFunc("DELETE /users/{id}", handler.DeleteUserHandler)
+
+	var handlerComMiddlewares http.Handler = mux
+	handlerComMiddlewares = middleware.Logger(handlerComMiddlewares)
+	handlerComMiddlewares = middleware.Recovery(handlerComMiddlewares)
+	handlerComMiddlewares = middleware.CORS(handlerComMiddlewares)
 
 	fmt.Println("Servidor rodando em http://localhost:8080")
 
-	err = http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", handlerComMiddlewares)
 	if err != nil {
 		fmt.Println("erro ao iniciar servidor: ", err)
 	}
